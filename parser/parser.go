@@ -51,14 +51,14 @@ func Tokenize(input string) []string {
 			flushWord()
 			tokens = append(tokens, ")")
 			i += size
-		case r == '\'':
-			if word.Len() > 0 {
+		case r == '\'' || r == '-':
+			if word.Len() > 0 && isWordRuneAt(input, i+size) {
 				word.WriteRune(r)
 				i += size
 				continue
 			}
 			flushWord()
-			tokens = append(tokens, "'")
+			tokens = append(tokens, string(r))
 			i += size
 		case unicode.IsLetter(r) || unicode.IsNumber(r):
 			word.WriteRune(r)
@@ -72,6 +72,15 @@ func Tokenize(input string) []string {
 
 	flushWord()
 	return tokens
+}
+
+// isWordRuneAt indique si le caractère à la position donnée peut continuer un mot.
+func isWordRuneAt(input string, index int) bool {
+	if index >= len(input) {
+		return false
+	}
+	r, _ := utf8.DecodeRuneInString(input[index:])
+	return unicode.IsLetter(r) || unicode.IsNumber(r)
 }
 
 // findMarkerEnd cherche la position de la parenthèse fermante d'un marqueur.
@@ -101,7 +110,8 @@ func isMarker(marker string) bool {
 		if len(parts) != 2 {
 			return false
 		}
-		if _, err := strconv.Atoi(strings.TrimSpace(parts[1])); err != nil {
+		count, err := strconv.Atoi(strings.TrimSpace(parts[1]))
+		if err != nil || count < 1 {
 			return false
 		}
 		body = strings.TrimSpace(parts[0])
