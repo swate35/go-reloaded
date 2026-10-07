@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-// les tests unitaires pour vérifier les transformations de texte, on été generés par Ia.
+// les tests unitaires pour vérifier les transformations de texte, on été copier du pdf.
 func TestTextTransformations(t *testing.T) {
 	tests := []struct {
 		name  string
