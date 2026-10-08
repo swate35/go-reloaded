@@ -105,21 +105,22 @@ func isMarker(marker string) bool {
 		return false
 	}
 
+	name := body
+	count := 1
 	if strings.Contains(body, ",") {
 		parts := strings.SplitN(body, ",", 2)
 		if len(parts) != 2 {
 			return false
 		}
-		count, err := strconv.Atoi(strings.TrimSpace(parts[1]))
-		if err != nil || count < 1 {
-			return false
-		}
-		body = strings.TrimSpace(parts[0])
+		name = strings.TrimSpace(parts[0])
+		count, _ = strconv.Atoi(strings.TrimSpace(parts[1]))
 	}
 
-	switch strings.ToLower(body) {
-	case "up", "low", "cap", "hex", "bin":
-		return true
+	switch strings.ToLower(name) {
+	case "up", "low", "cap":
+		return count >= 1
+	case "hex", "bin":
+		return !strings.Contains(body, ",")
 	default:
 		return false
 	}

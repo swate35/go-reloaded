@@ -54,6 +54,16 @@ func TestTextTransformations(t *testing.T) {
 			input: "I don't know (up).",
 			want:  "I don't KNOW.",
 		},
+		{
+			name:  "marqueurs insensibles à la casse",
+			input: "This is a test (CAP, 2).",
+			want:  "This is A Test.",
+		},
+		{
+			name:  "marqueurs non documentés rejetés",
+			input: "10 (bin, 2) and 5 (hex, 3)",
+			want:  "10 (bin, 2) and 5 (hex, 3)",
+		},
 	}
 
 	for _, test := range tests {

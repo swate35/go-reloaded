@@ -80,3 +80,4 @@ go test ./... -v
 - `transform/` : applique les marqueurs et normalise le texte.
 - `utils/` : reconstruit le texte à partir des jetons.
 - `test/` : contient les tests du traitement du texte.
+
