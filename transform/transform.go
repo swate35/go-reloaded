@@ -22,13 +22,14 @@ func ApplyTransformations(tokens []string) []string {
 // applyMarkers transforme les mots précédant chaque marqueur reconnu.
 func applyMarkers(tokens []string) []string {
 	result := make([]string, 0, len(tokens))
-	for _, token := range tokens {
+	for i := 0; i < len(tokens); i++ {
+		token := tokens[i]
 		if !isMarkerToken(token) {
 			result = append(result, token)
 			continue
 		}
 
-		markerName, count := parseMarker(token)
+		markerName, count, _ := parseMarker(token)
 		wordCount := 1
 		if markerName == "up" || markerName == "low" || markerName == "cap" {
 			wordCount = count
@@ -53,8 +54,33 @@ func applyMarkers(tokens []string) []string {
 			continue
 		}
 
+		hadLeftSpace := false
 		for len(result) > 0 && isSpaceToken(result[len(result)-1]) {
+			hadLeftSpace = true
 			result = result[:len(result)-1]
+		}
+
+		rightStart := i + 1
+		for rightStart < len(tokens) && isSpaceToken(tokens[rightStart]) {
+			rightStart++
+		}
+		if rightStart == len(tokens) {
+			i = rightStart - 1
+			continue
+		}
+
+		hadRightSpace := rightStart > i+1
+		nextIsMarker := isMarkerToken(tokens[rightStart])
+		previousIsWord := len(result) > 0 && isWordToken(result[len(result)-1])
+		nextIsWord := isWordToken(tokens[rightStart])
+		if !nextIsMarker && previousIsWord && nextIsWord {
+			result = append(result, " ")
+		} else if !nextIsMarker && (hadLeftSpace || hadRightSpace) {
+			result = append(result, " ")
+		}
+
+		if rightStart > i+1 {
+			i = rightStart - 1
 		}
 	}
 	return result
@@ -62,7 +88,11 @@ func applyMarkers(tokens []string) []string {
 
 // precedingWordIndexes récupère les indices des derniers mots rencontrés.
 func precedingWordIndexes(tokens []string, count int) []int {
-	indexes := make([]int, 0, count)
+	capacity := count
+	if capacity > len(tokens) {
+		capacity = len(tokens)
+	}
+	indexes := make([]int, 0, capacity)
 	for i := len(tokens) - 1; i >= 0 && len(indexes) < count; i-- {
 		if isWordToken(tokens[i]) {
 			indexes = append(indexes, i)
@@ -73,47 +103,43 @@ func precedingWordIndexes(tokens []string, count int) []int {
 
 // isMarkerToken vérifie si un jeton est un marqueur de transformation valide.
 func isMarkerToken(token string) bool {
+	_, _, ok := parseMarker(token)
+	return ok
+}
+
+// parseMarker valide un marqueur et extrait son nom et son nombre de mots.
+func parseMarker(token string) (string, int, bool) {
 	if len(token) < 3 || token[0] != '(' || token[len(token)-1] != ')' {
-		return false
+		return "", 0, false
 	}
 	body := strings.TrimSpace(token[1 : len(token)-1])
 	if body == "" {
-		return false
+		return "", 0, false
 	}
 
 	name := body
 	count := 1
 	if strings.Contains(body, ",") {
 		parts := strings.SplitN(body, ",", 2)
-		if len(parts) != 2 {
-			return false
+		if len(parts) != 2 || strings.Contains(parts[1], ",") {
+			return "", 0, false
 		}
 		name = strings.TrimSpace(parts[0])
-		count, _ = strconv.Atoi(strings.TrimSpace(parts[1]))
+		var err error
+		count, err = strconv.Atoi(strings.TrimSpace(parts[1]))
+		if err != nil {
+			return "", 0, false
+		}
 	}
 
 	switch strings.ToLower(name) {
 	case "up", "low", "cap":
-		return count >= 1
+		return strings.ToLower(name), count, count >= 1
 	case "hex", "bin":
-		return !strings.Contains(body, ",")
+		return strings.ToLower(name), 1, !strings.Contains(body, ",")
 	default:
-		return false
+		return "", 0, false
 	}
-}
-
-// parseMarker extrait le nom du marqueur et son nombre de mots éventuel.
-func parseMarker(token string) (string, int) {
-	body := strings.TrimSpace(token[1 : len(token)-1])
-	count := 1
-	if strings.Contains(body, ",") {
-		parts := strings.SplitN(body, ",", 2)
-		body = strings.TrimSpace(parts[0])
-		if strings.EqualFold(body, "up") || strings.EqualFold(body, "low") || strings.EqualFold(body, "cap") {
-			count, _ = strconv.Atoi(strings.TrimSpace(parts[1]))
-		}
-	}
-	return strings.ToLower(body), count
 }
 
 // isSpaceToken indique si le jeton ne contient qu'un caractère d'espacement.

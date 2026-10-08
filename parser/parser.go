@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -39,7 +38,7 @@ func Tokenize(input string) []string {
 			end := findMarkerEnd(input[i:])
 			if end >= 0 {
 				candidate := input[i : i+end+1]
-				if isMarker(candidate) {
+				if isMarkerName(candidate) {
 					tokens = append(tokens, candidate)
 					i += end + 1
 					continue
@@ -93,34 +92,23 @@ func findMarkerEnd(s string) int {
 	return -1
 }
 
-// isMarker vérifie si une sous-chaîne correspond à un marqueur valide.
-// Exemples : (up), (low, 3), (hex), (bin)
-func isMarker(marker string) bool {
+func isMarkerName(marker string) bool {
 	if len(marker) < 3 || marker[0] != '(' || marker[len(marker)-1] != ')' {
 		return false
 	}
 
 	body := strings.TrimSpace(marker[1 : len(marker)-1])
-	if body == "" {
+	if parts := strings.SplitN(body, ",", 2); len(parts) == 2 {
+		body = parts[0]
+	}
+	fields := strings.Fields(body)
+	if len(fields) == 0 {
 		return false
 	}
 
-	name := body
-	count := 1
-	if strings.Contains(body, ",") {
-		parts := strings.SplitN(body, ",", 2)
-		if len(parts) != 2 {
-			return false
-		}
-		name = strings.TrimSpace(parts[0])
-		count, _ = strconv.Atoi(strings.TrimSpace(parts[1]))
-	}
-
-	switch strings.ToLower(name) {
-	case "up", "low", "cap":
-		return count >= 1
-	case "hex", "bin":
-		return !strings.Contains(body, ",")
+	switch strings.ToLower(fields[0]) {
+	case "up", "low", "cap", "hex", "bin":
+		return true
 	default:
 		return false
 	}

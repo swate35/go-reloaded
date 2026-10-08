@@ -64,6 +64,81 @@ func TestTextTransformations(t *testing.T) {
 			input: "10 (bin, 2) and 5 (hex, 3)",
 			want:  "10 (bin, 2) and 5 (hex, 3)",
 		},
+		{
+			name:  "espace conservé autour du marqueur",
+			input: "hello   (up) world",
+			want:  "HELLO world",
+		},
+		{
+			name:  "espaces multiples autour du marqueur",
+			input: "hello   (up)   world",
+			want:  "HELLO world",
+		},
+		{
+			name:  "marqueur collé entre deux mots",
+			input: "hello(up)world",
+			want:  "HELLO world",
+		},
+		{
+			name:  "ponctuation avant marqueur",
+			input: "hello ,(up) world",
+			want:  "HELLO, world",
+		},
+		{
+			name:  "nombre invalide conserve ses espaces",
+			input: "G1   (hex) and 10202 (bin)",
+			want:  "G1   (hex) and 10202 (bin)",
+		},
+		{
+			name:  "marqueurs enchaînés",
+			input: "hello (up) (low)",
+			want:  "hello",
+		},
+		{
+			name:  "espaces finaux après marqueur",
+			input: "hello (up)   ",
+			want:  "HELLO",
+		},
+		{
+			name:  "count invalide préservé",
+			input: "hello (up,abc)",
+			want:  "hello (up,abc)",
+		},
+		{
+			name:  "marqueur vide préservé",
+			input: "hello (up,)",
+			want:  "hello (up,)",
+		},
+		{
+			name:  "marqueur avec count supplémentaire préservé",
+			input: "hello (up,3,4)",
+			want:  "hello (up,3,4)",
+		},
+		{
+			name:  "marqueur sans virgule invalide préservé",
+			input: "hello (up 3)",
+			want:  "hello (up 3)",
+		},
+		{
+			name:  "espaces dans le marqueur valide",
+			input: "hello (up , 1)",
+			want:  "HELLO",
+		},
+		{
+			name:  "count négatif préservé",
+			input: "hello (low, -3)",
+			want:  "hello (low, -3)",
+		},
+		{
+			name:  "count trop grand préservé",
+			input: "hello (cap, 999999999999999999999999)",
+			want:  "hello (cap, 999999999999999999999999)",
+		},
+		{
+			name:  "count valide supérieur aux mots disponibles",
+			input: "hello (up, 999999999)",
+			want:  "HELLO",
+		},
 	}
 
 	for _, test := range tests {
