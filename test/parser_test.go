@@ -143,12 +143,35 @@ func TestTextTransformations(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			tokens := parser.Tokenize(test.input)
-			tokens = transform.ApplyTransformations(tokens)
-			got := utils.Reconstruct(tokens)
+			tokens, err := parser.Tokenize(test.input)
+			if err != nil {
+				t.Fatalf("erreur inattendue lors de l'analyse : %v", err)
+			}
+			tokens, err = transform.ApplyTransformations(tokens)
+			if err != nil {
+				t.Fatalf("erreur inattendue lors de la transformation : %v", err)
+			}
+			got, err := utils.Reconstruct(tokens)
+			if err != nil {
+				t.Fatalf("erreur inattendue lors de la reconstruction : %v", err)
+			}
 			if got != test.want {
 				t.Fatalf("résultat inattendu :\nobtenu  : %q\nattendu : %q", got, test.want)
 			}
 		})
+	}
+}
+
+func TestInvalidUTF8ReturnsErrors(t *testing.T) {
+	invalidUTF8 := string([]byte{0xff})
+
+	if _, err := parser.Tokenize(invalidUTF8); err == nil {
+		t.Fatal("Tokenize aurait dû signaler l'UTF-8 invalide")
+	}
+	if _, err := transform.ApplyTransformations([]string{invalidUTF8}); err == nil {
+		t.Fatal("ApplyTransformations aurait dû signaler l'UTF-8 invalide")
+	}
+	if _, err := utils.Reconstruct([]string{invalidUTF8}); err == nil {
+		t.Fatal("Reconstruct aurait dû signaler l'UTF-8 invalide")
 	}
 }

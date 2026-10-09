@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -8,9 +9,12 @@ import (
 
 // Tokenize découpe une chaîne en jetons simples.
 // Chaque mot, espace, apostrophe et marqueur de transformation est isolé.
-func Tokenize(input string) []string {
+func Tokenize(input string) ([]string, error) {
+	if !utf8.ValidString(input) {
+		return nil, fmt.Errorf("parser : le texte d'entrée n'est pas un UTF-8 valide")
+	}
 	if input == "" {
-		return nil
+		return nil, nil
 	}
 
 	var tokens []string
@@ -70,7 +74,7 @@ func Tokenize(input string) []string {
 	}
 
 	flushWord()
-	return tokens
+	return tokens, nil
 }
 
 // isWordRuneAt indique si le caractère à la position donnée peut continuer un mot.
