@@ -8,6 +8,7 @@ import (
 )
 
 // les tests unitaires pour vérifier les transformations de texte, on été copier du pdf.
+// Chaque cas passe par le parcours complet : analyse, transformations et reconstruction.
 func TestTextTransformations(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -162,6 +163,7 @@ func TestTextTransformations(t *testing.T) {
 	}
 }
 
+// TestInvalidUTF8ReturnsErrors vérifie que chaque étape publique refuse un texte invalide.
 func TestInvalidUTF8ReturnsErrors(t *testing.T) {
 	invalidUTF8 := string([]byte{0xff})
 

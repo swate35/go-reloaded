@@ -21,6 +21,7 @@ func formatPunctuation(tokens []string) []string {
 			result = result[:len(result)-1]
 		}
 
+		// Rassembler les signes adjacents (même séparés par des espaces) en un seul groupe.
 		var group strings.Builder
 		for i < len(tokens) {
 			if isPunctuationToken(tokens[i]) {
@@ -45,6 +46,7 @@ func formatPunctuation(tokens []string) []string {
 		for i < len(tokens) && isSpaceToken(tokens[i]) {
 			i++
 		}
+		// La ponctuation est collée à gauche ; un seul espace la sépare du jeton suivant.
 		if i < len(tokens) {
 			result = append(result, " ")
 		}

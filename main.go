@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+// main lance le traitement et affiche les erreurs avant de quitter avec un code non nul.
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -15,6 +16,7 @@ func main() {
 	}
 }
 
+// run lit le fichier d'entrée, applique les transformations et écrit le résultat.
 func run() error {
 	// Vérification du nombre d'arguments.
 	if len(os.Args) != 3 {
@@ -44,6 +46,7 @@ func run() error {
 		return fmt.Errorf("erreur lors de la reconstruction du texte : %w", err)
 	}
 	// Écriture du résultat dans le fichier de sortie.
+	// Le mode 0644 autorise la lecture par tous et l'écriture par le propriétaire.
 	err = os.WriteFile(outputPath, []byte(result), 0644)
 	if err != nil {
 		return fmt.Errorf("erreur : impossible d'écrire le fichier de sortie %q : %w", outputPath, err)

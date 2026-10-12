@@ -10,6 +10,7 @@ func formatQuotes(tokens []string) []string {
 	}
 
 	remove := make(map[int]bool)
+	// Les apostrophes sont traitées par paires ; seules les espaces aux bords de la citation sont retirées.
 	for i := 0; i+1 < len(quoteIndexes); i += 2 {
 		opening, closing := quoteIndexes[i], quoteIndexes[i+1]
 		for j := opening + 1; j < closing && isSpaceToken(tokens[j]); j++ {

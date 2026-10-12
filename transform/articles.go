@@ -20,6 +20,7 @@ func formatArticles(tokens []string) []string {
 		if next >= len(result) || !isWordToken(result[next]) {
 			continue
 		}
+		// Ignorer les espaces afin de tester la première lettre du mot suivant.
 		first, _ := utf8.DecodeRuneInString(result[next])
 		switch unicode.ToLower(first) {
 		case 'a', 'e', 'i', 'o', 'u', 'h':

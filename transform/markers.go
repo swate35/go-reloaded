@@ -21,6 +21,7 @@ func applyMarkers(tokens []string) []string {
 		if markerName == "up" || markerName == "low" || markerName == "cap" {
 			wordCount = count
 		}
+		// L'indexation remonte dans les jetons, en ignorant espaces et ponctuation.
 		wordIndexes := precedingWordIndexes(result, wordCount)
 		if len(wordIndexes) == 0 {
 			result = append(result, token)
@@ -37,10 +38,12 @@ func applyMarkers(tokens []string) []string {
 			}
 		}
 		if !converted {
+			// Un nombre invalide garde son marqueur afin que l'entrée soit préservée.
 			result = append(result, token)
 			continue
 		}
 
+		// Retirer les espaces entourant le marqueur avant de reconstruire la séparation.
 		hadLeftSpace := false
 		for len(result) > 0 && isSpaceToken(result[len(result)-1]) {
 			hadLeftSpace = true
@@ -80,6 +83,7 @@ func precedingWordIndexes(tokens []string, count int) []int {
 		capacity = len(tokens)
 	}
 	indexes := make([]int, 0, capacity)
+	// Le parcours inverse trouve les mots les plus proches du marqueur en premier.
 	for i := len(tokens) - 1; i >= 0 && len(indexes) < count; i-- {
 		if isWordToken(tokens[i]) {
 			indexes = append(indexes, i)
@@ -113,6 +117,7 @@ func parseMarker(token string) (string, int, bool) {
 		}
 		name = strings.TrimSpace(parts[0])
 		var err error
+		// Une erreur de conversion ou un compte nul rend le marqueur invalide.
 		count, err = strconv.Atoi(strings.TrimSpace(parts[1]))
 		if err != nil {
 			return "", 0, false
