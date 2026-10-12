@@ -1,0 +1,17 @@
+# Fichiers générés par Go
+/bin/
+/dist/
+*.exe
+*.test
+*.out
+coverage.*
+
+# Fichiers temporaires des éditeurs
+*.swp
+*.swo
+*~
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
