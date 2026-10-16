@@ -46,6 +46,31 @@ func TestTextTransformations(t *testing.T) {
 			want:  "'texte cité'",
 		},
 		{
+			name:  "espaces autour des guillemets doubles",
+			input: `"   texte cité   "`,
+			want:  `"texte cité"`,
+		},
+		{
+			name:  "guillemets simples et doubles",
+			input: `'" texte cité "'`,
+			want:  `'"texte cité"'`,
+		},
+		{
+			name:  "apostrophe séparée entre deux mots",
+			input: "c ' est",
+			want:  "c'est",
+		},
+		{
+			name:  "apostrophe séparée d'un seul côté",
+			input: "c 'd",
+			want:  "c'd",
+		},
+		{
+			name:  "apostrophe de citation conservée",
+			input: "bonjour 'fc',",
+			want:  "bonjour 'fc',",
+		},
+		{
 			name:  "article devant voyelle et h",
 			input: "There it was. A amazing rock and a honest answer.",
 			want:  "There it was. An amazing rock and an honest answer.",
